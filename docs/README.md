@@ -138,9 +138,9 @@ convert -size 1600x1200 "xc:white" +antialias \
 <dt><strong>Palette B</strong></dt>
 <dd>Actual display color palette (&quot;Spectra 6 (RGB)&quot; in the table above)</dd>
 <dt><strong>Palette C</strong></dt>
-<dd>Color palette derived from a sample image of ACeP e-paper (See &quot;Actual Palette&quot; in the <a href="https&#58;//github.com/middle-river/color_epd_photo2">previous page</a>)</dd>
+<dd>Color palette derived from a sample image of ACeP e-paper (See &quot;sample image palette&quot; in the <a href="https&#58;//github.com/middle-river/color_epd_photo2">previous project</a>)</dd>
 <dt><strong>Palette D</strong></dt>
-<dd>Color palette adaptively determined for images (See &quot;Experiment of Palette Optimization&quot; in the <a href="https&#58;//github.com/middle-river/color_epd_photo2">previous page</a>)</dd>
+<dd>Color palette adaptively determined for images (See &quot;Experiment of Optimizing Palettes&quot; in the <a href="https&#58;//github.com/middle-river/color_epd_photo2">previous project</a>)</dd>
 </dl>
 <p><a href="https&#58;//github.com/middle-river/color_epd_photo3/tree/main/tool/reduce_colors.py">This</a> (Palette A-C) and <a href="https&#58;//github.com/middle-river/color_epd_photo2/tree/main/palette_optimizer/convert_colors.py">this</a> (Palette D) scripts were used for color reduction. The images used for the test were available in <a href="https&#58;//www.northlight-images.co.uk/printer-test-images/">this page</a>.</p>
 <div align="center">
@@ -157,7 +157,7 @@ convert -size 1600x1200 "xc:white" +antialias \
 <figure style="display: inline-table;"><a href="result3.jpg"><img height=200 src="result3.jpg" border="2"><figcaption>Result of Image D</figcaption></a></figure>
 </div>
 <p>In these pictures, the top is the 13.3&quot; Spectra 6, and the bottom left is the 7.3&quot; ACeP. There are four images in the 13.3&quot; model&#58; the top left uses Palette A, the top right uses Palette B, the bottom left uses Palette C, and the bottom right uses Palette D. The 7.3&quot; model always uses Palette C. All images are the same size, 800x480.</p>
-<p>The differences between the palettes can be seen with the 13.3&quot; display. Palette A (pure color palette) is always low in saturation and noisy. Palette B (actual palette) has blown out highlights. Palette C (palette from the sample image) has relatively stable image quality for all images. Palette D (adaptive palette) has slightly higher contrast than Palette C but colors may shift. When comparing the 13.3&quot; Spectra 6 (Palette C) to the 7.3&quot; ACeP (Palette C), the Spectra 6 often produces slightly more vibrant results. As described in the <a href="https&#58;//github.com/middle-river/color_epd_photo2">previous page</a> , color palettes used for color reduction largely impact on image quality. Palette C was originally obtained from a sample image of ACeP e-paper, but it also gave good results on Spectra 6.</p>
+<p>The differences between the palettes can be seen with the 13.3&quot; display. Palette A (pure color palette) is always low in saturation and noisy. Palette B (actual palette) has blown out highlights. Palette C (palette from a sample image) has relatively stable image quality for all images. Palette D (adaptive palette) has slightly higher contrast than Palette C but colors may shift. When comparing the 13.3&quot; Spectra 6 (Palette C) to the 7.3&quot; ACeP (Palette C), the Spectra 6 often produces slightly more vibrant results. As described in the <a href="https&#58;//github.com/middle-river/color_epd_photo2">previous page</a> , color palettes used for color reduction largely impact on image quality. Palette C was originally obtained from a sample image of ACeP e-paper, but it also gave good results on Spectra 6.</p>
 <h2>Hardware</h2>
 <p>ESP32 is used. The circuit is similar to the previous one, and the wiring is as follows.</p>
 <table align="center" border="1">
@@ -217,17 +217,17 @@ convert -size 1600x1200 "xc:white" +antialias \
 <h2>Software</h2>
 <p>A <a href="https&#58;//github.com/middle-river/color_epd_photo3/tree/main/firmware">firmware</a> for the Arduino ESP32 was written in order to use this 13.3&quot; e-paper as a photo frame. The control of this e-paper is a bit tricky compared to previous ones. It has two controllers, and there are two chip select (CS) signals. The PWR signal was added to completely cut off the power supply with MOS-FET, so power consumption can be reduced to zero when not in use (not applicable to Raspberry Pi GPIO pins). There is a D/C signal to distinguish between commands and data, but it is not actually used. Data are sent immediately after each command, and CS must be kept low during the whole cycle. This is a large e-paper, and the current consumption is large (1.4A at maximum according to the specification). It did not work with two AA batteries due to voltage drop.</p>
 <h3>Usage</h3>
-<p>This photo frame is normally in the deep sleep state, but it wakes up and rewrite images when the specified sleep time has elapsed or the tactile switch (connected to GPIO0) is pressed. This photo frame is controlled using only the single switch. By pressing the switch when powering on or resetting, various settings can be configured and image data can be transferred. There are the following operating modes.</p>
+<p>This photo frame is normally in the deep sleep state, but it wakes up and rewrite images when the specified sleep time has elapsed or the tactile switch (connected to GPIO0) is pressed. This photo frame is controlled using only the single switch. By pressing the switch when powering on or resetting, several settings can be configured and image data can be transferred. There exist the following operating modes.</p>
 <ul>
-<li><strong>Configuration mode</strong><br>This mode is activated when the switch is pressed for 2 seconds or more within 3 seconds after the power-on. The device will sleep by sending an empty string as the key.</li>
-<li><strong>Sync mode</strong><br>This mode is activated when the switch is pressed less than 2 seconds within 3 seconds after the power-on. The device will sleep after syncing the data.</li>
-<li><strong>Transfer mode</strong><br>This mode is activated when the switch is pressed two times within 3 seconds after the power-on. The device will sleep when the switch is pressed again.</li>
+<li><strong>Configuration mode</strong><br>This mode is activated when the switch is pressed for 2 seconds or more within 3 seconds after power-on. The device will sleep by sending an empty string as the key.</li>
+<li><strong>Sync mode</strong><br>This mode is activated when the switch is pressed less than 2 seconds within 3 seconds after power-on. The device will sleep after syncing the data.</li>
+<li><strong>Transfer mode</strong><br>This mode is activated when the switch is pressed two times within 3 seconds after power-on. The device will sleep when the switch is pressed once again.</li>
 <li><strong>Displaying the next image</strong><br>This mode is activated when the switch is pressed less than 2 seconds in the sleep state, or the sleep time elapsed. The device will sleep after displaying the next image.</li>
 <li><strong>Displaying the previous image</strong><br>This mode is activated when the switch is pressed 2 seconds or more in the sleep state. The device will sleep after displaying the previous image.</li>
 <li><strong>Displaying the 5th next image</strong><br>This mode is activated when the switch is pressed two times in the sleep state. The device will sleep after displaying the 5th next image.</li>
 <li><strong>Displaying the 5th previous image</strong><br>This mode is activated when the switch is pressed three times in the sleep state. The device will sleep after displaying the 5th previous image.</li>
 </ul>
-<p>In the configuration mode, an HTTP server runs in the Access Point mode. The device can be configured by connecting to the server (SSID is &quot;ESP32&quot;, password is &quot;12345678&quot;, and URL is &quot;http&#58;//192.168.0.1/&quot;) with a smartphones or tablet. Any key-value pair can be registered in this mode. The SSID, its password, the URL for synchronization, and the sleep time (in seconds) for the transfer and sync modes are set using the keys &quot;SSID&quot;, &quot;PASS&quot;, &quot;URL&quot;, and &quot;SLEEP&quot; respectively. These values are saved on the flash memory.</p>
+<p>In the configuration mode, an HTTP server runs in the Access Point mode. The device can be configured by connecting to the server (SSID is &quot;ESP32&quot;, password is &quot;12345678&quot;, and URL is &quot;http&#58;//192.168.0.1/&quot;) with a smartphone or tablet. Any key-value pair can be registered in this mode. The SSID/password for the transfer/sync mode, the URL for the sync mode, and the sleep time (in seconds) are set using the keys &quot;SSID&quot;, &quot;PASS&quot;, &quot;URL&quot;, and &quot;SLEEP&quot; respectively. These values are saved on the flash memory.</p>
 <p>In the sync mode, image files in a specified web server directory are automatically transferred to the ESP32. The server directory needs to be set for the key &quot;URL&quot; in the configuration mode. The URL needs to end with a slash. HTTP Basic Authentication can be used with a URL like &quot;http&#58;//user&#58;password@example.com/dir/subdir/&quot;. Note that file sizes are used for checking file identity, so files will not be updated when the files in the server are replaced with new files with the same sizes. It is also possible to update key-value configurations by putting a file named config.txt in the directory, which has a tab-separated key-value pair in each line. In the web server directory for storing images, the following files .htaccess and index.cgi also need to be placed in order to obtain the list of files.</p>
 
 <pre style="background-color: #ccffcc">
@@ -241,10 +241,11 @@ echo "Content-Type: text/plain"
 echo ""
 find . -maxdepth 1 -name "*.gif" -printf '%s %f\n'
 </pre>
-<p>In the transfer mode, the device connects to an access point in the station mode and runs an FTP server. We can connect with FTP client software and upload or delete image files. In Windows, File Explorer can be used as an FTP client. All image files to be displayed on the photo frame are placed in the root directory. I used the Arduino library SimpleFTPServer (in order to use LittleFS instead of SPIFFS, DEFAULT_STORAGE_TYPE_ESP32 in FtpServerKey.h needs to be changed from STORAGE_SPIFFS to STORAGE_LITTLEFS).</p>
+<p>In the transfer mode, the device connects to an access point in the Station mode and runs an FTP server. We can connect with FTP client software and upload or delete image files. In Windows, File Explorer can be used as an FTP client. All image files need to be placed in the root directory of ESP32. I used the Arduino library SimpleFTPServer (in order to use LittleFS instead of SPIFFS, DEFAULT_STORAGE_TYPE_ESP32 in FtpServerKey.h needs to be changed from STORAGE_SPIFFS to STORAGE_LITTLEFS).</p>
 <h3>Image Data</h3>
-<p>Image data to be displayed are stored in the GIF format, and a GIF decoder which was written before was used. Since this e-paper has two controllers assigned to the left and right sides of the display area and needs to transfer data separately, 1200x1600 images are divided into left and right halves and converted into 600x3200 images by vertically merging in advance. File sizes depend on the images, but they were usually around 250 to 450KB.</p>
+<p>Image data are stored in the GIF format, and a GIF decoder which was written before was used. Since this e-paper has two controllers assigned to the left and right sides of the display area and needs to transfer data separately, 1200x1600 images are divided into left and right halves and converted into 600x3200 images by vertically merging in advance. File sizes depend on the images, but they were usually around 250 to 450KB.</p>
 <hr>
+<!-- var -->
 <p><a href="#lang_en">[English]</a> <a id="lang_ja" name="lang_ja"></a>[日本語]</p>
 <h1 align="center">13.3インチ6色カラー電子ペーパーを使った大型フォトフレーム</h1>
 <h2>はじめに</h2>
@@ -381,7 +382,7 @@ convert -size 1600x1200 "xc:white" +antialias \
 <dt><strong>パレットB</strong></dt>
 <dd>実際の表示色のカラーパレット(上の表の&quot;Spectra 6 (RGB)&quot;)</dd>
 <dt><strong>パレットC</strong></dt>
-<dd>ACeP電子ペーパーのサンプル画像から求めたカラーパレット(<a href="https&#58;//github.com/middle-river/color_epd_photo2">以前のページ</a>の&quot;実機のパレット&quot;を参照)</dd>
+<dd>ACeP電子ペーパーのサンプル画像から求めたカラーパレット(<a href="https&#58;//github.com/middle-river/color_epd_photo2">以前のページ</a>の&quot;サンプル画像のパレット&quot;を参照)</dd>
 <dt><strong>パレットD</strong></dt>
 <dd>画像に対して適応的に求めたカラーパレット(<a href="https&#58;//github.com/middle-river/color_epd_photo2">以前のページ</a>の&quot;パレット最適化の実験&quot;を参照)</dd>
 </dl>
@@ -400,7 +401,7 @@ convert -size 1600x1200 "xc:white" +antialias \
 <figure style="display: inline-table;"><a href="result3.jpg"><img height=200 src="result3.jpg" border="2"><figcaption>画像Dの表示結果</figcaption></a></figure>
 </div>
 <p>この写真の中で、上が13.3インチSpectra 6で、左下が7.3インチACePです。13.3インチの方には4つの画像がありますが、左上がパレットA、右上がパレットB、左下がパレットC、右下がパレットDを使った画像です。7.3インチではパレットCを使っています。それぞれの画像は全て800x480の同じサイズです。</p>
-<p>13.3インチの表示例を見るとパレット毎の違いが分かります。パレットA(純色パレット)は常に彩度が低くノイジーです。パレットB(実際のパレット)はハイライトが飛びやすいです。パレットC(実機サンプル画像のパレット)はどの画像でも比較的画質が安定しています。パレットD(適応的パレット)はパレットCよりもややコントラストが高くなりますが色が変わってしまうことがあります。</p>
+<p>13.3インチの表示例を見るとパレット毎の違いが分かります。パレットA(純色パレット)は常に彩度が低くノイジーです。パレットB(実際のパレット)はハイライトが飛びやすいです。パレットC(サンプル画像のパレット)はどの画像でも比較的画質が安定しています。パレットD(適応的パレット)はパレットCよりもややコントラストが高くなりますが色が変わってしまうことがあります。</p>
 <p>13.3インチのSpectra 6 (パレットC)と7.3インチのACePを比較すると、多くの場合Spectra 6の方がやや鮮やかな結果が得られています。</p>
 <p><a href="https&#58;//github.com/middle-river/color_epd_photo2">以前のページ</a>で説明したように、減色で使用するカラーパレットにより画質が大きな影響を受けます。パレットCは、元々ACePカラー電子ペーパーのサンプル画像から得たカラーパレットですが、Spectra 6でもよい結果が得られました。</p>
 <h2>ハードウェア</h2>
@@ -493,7 +494,7 @@ find . -maxdepth 1 -name "*.gif" -printf '%s %f\n'
 <hr>
 <p><a href="https&#58;//github.com/middle-river">[Home]</a></p>
 <div align="right">
-2025-01<br>T. Nakagawa
+2025-01 Project finished.<br>2025-01-26 Page created.<br>T. Nakagawa
 </div>
 </body>
 </html>
