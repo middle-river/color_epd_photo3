@@ -40,7 +40,7 @@ constexpr int PIN_DC = 21;
 constexpr int PIN_CSM = 19;
 constexpr int PIN_CSS = 22;
 constexpr int PIN_SW = 0;
-constexpr float VOLTAGE_ADJUST = 3.30f / 3.70f;
+constexpr float VOLTAGE_ADJUST = 3.30f / 3.81f;
 #endif
 constexpr uint32_t font[13] = {0x25555520, 0x26222270, 0x25124470, 0x25121520, 0x55571110, 0x74461520, 0x25465520, 0x71122220, 0x25525520, 0x25531520, 0x00000040, 0x11222440, 0x00000000};  // 4x8 font data for digits [0-9./ ].
 constexpr float SHUTDOWN_VOLTAGE = 2.30f;
@@ -144,7 +144,7 @@ void display(int delta, float voltage) {
   int line = 0;
   auto callback = [bitmap, &line](uint8_t *data, int size) {  // Superimpose function.
     if (line < 16) {
-      std::memcpy(data, bitmap + 96 / 2 * line, 96 / 2);
+      std::memcpy(data, bitmap + 80 / 2 * line, 80 / 2);
     }
     epd.write(data, size);
     line++;

@@ -26,6 +26,8 @@ public:
     HTTPClient http;
     bool ok = true;
     LittleFS.begin();
+    if (Serial) Serial.println("Total bytes: " + String(LittleFS.totalBytes()));
+    if (Serial) Serial.println("Used bytes: " + String(LittleFS.usedBytes()));
 
     // Turn on WiFi.
     if (Serial) Serial.println("Connecting WiFi.");
@@ -149,6 +151,8 @@ public:
     WiFi.disconnect(true);
     WiFi.mode(WIFI_OFF);
 
+    if (Serial) Serial.println("Total bytes: " + String(LittleFS.totalBytes()));
+    if (Serial) Serial.println("Used bytes: " + String(LittleFS.usedBytes()));
     LittleFS.end();
     delete[] buf;
     delete[] old_names;

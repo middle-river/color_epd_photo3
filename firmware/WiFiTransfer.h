@@ -44,12 +44,16 @@ public:
     if (Serial) Serial.println(WiFi.localIP());
 
     LittleFS.begin(true);
+    if (Serial) Serial.println("Total bytes: " + String(LittleFS.totalBytes()));
+    if (Serial) Serial.println("Used bytes: " + String(LittleFS.usedBytes()));
     FtpServer ftp;
     ftp.setCallback(ftp_callback);
     ftp.setTransferCallback(ftp_transfer_callback);
     ftp.begin();  // FTP for anonymous connection.
     while (callback()) ftp.handleFTP();
     ftp.end();
+    if (Serial) Serial.println("Total bytes: " + String(LittleFS.totalBytes()));
+    if (Serial) Serial.println("Used bytes: " + String(LittleFS.usedBytes()));
     LittleFS.end();
     WiFi.disconnect(true);
     WiFi.mode(WIFI_OFF);
