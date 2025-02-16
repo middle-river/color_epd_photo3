@@ -158,20 +158,27 @@ convert -size 1600x1200 "xc:white" +antialias \
 </div>
 <p>In these pictures, the top is the 13.3&quot; Spectra 6, and the bottom left is the 7.3&quot; ACeP. There are four images in the 13.3&quot; model&#58; the top left uses Palette A, the top right uses Palette B, the bottom left uses Palette C, and the bottom right uses Palette D. The 7.3&quot; model always uses Palette C. All images are the same size, 800x480.</p>
 <p>The differences between the palettes can be seen with the 13.3&quot; display. Palette A (pure color palette) is always low in saturation and noisy. Palette B (actual palette) has blown out highlights. Palette C (palette from a sample image) has relatively stable image quality for all images. Palette D (adaptive palette) has slightly higher contrast than Palette C but colors may shift. When comparing the 13.3&quot; Spectra 6 (Palette C) to the 7.3&quot; ACeP (Palette C), the Spectra 6 often produces slightly more vibrant results. As described in the <a href="https&#58;//github.com/middle-river/color_epd_photo2">previous page</a> , color palettes used for color reduction largely impact on image quality. Palette C was originally obtained from a sample image of ACeP e-paper, but it also gave good results on Spectra 6.</p>
+<p>ACeP took 32 seconds and Spectra 6 took 22 seconds for refreshing the screen.</p>
 <h2>Hardware</h2>
-<p>ESP32 is used. The circuit is similar to the previous one, and the wiring is as follows.</p>
+<p>The 6 color e-paper used here is <a href="https&#58;//www.waveshare.com/13.3inch-e-paper-hat-plus-e.htm?sku=29355">Waveshare 13.3inch e-Paper HAT+ (E)</a>, with the resolution of 1200x1600. The control of this e-paper is a bit tricky compared to previous ones. It has two controllers, and there are two chip select (CS) signals. The PWR signal was added to completely cut off the power supply with MOS-FET, so power consumption can be reduced to zero when not in use (not applicable to Raspberry Pi GPIO pins). There is a D/C signal to distinguish between commands and data, but it is not actually used. Data are sent immediately after each command, and CS must be kept low during the whole cycle. This is a large e-paper, and the current consumption is large (1.4 A at maximum according to the specification). It did not work with two AA batteries due to voltage drop.</p>
+<p>ESP32 with 16 MB flash memory was used for controlling the e-paper. 1,280 KB was assigned to the program area, and the rest to LittleFS storage area.</p>
+<p>The circuit is similar to the previous one, and the wiring is as follows.</p>
 <table align="center" border="1">
 <tr>
-<td align="left">VCC</td>
+<td align="left">BAT&#58;4.5V</td>
 <td align="left">EPD&#58;VCC</td>
 </tr>
 <tr>
+<td align="left">BAT&#58;GND</td>
+<td align="left">EPD&#58;GND</td>
+</tr>
+<tr>
 <td align="left">ESP&#58;3V3</td>
-<td align="left">BAT+</td>
+<td align="left">BAT&#58;3.3V</td>
 </tr>
 <tr>
 <td align="left">ESP&#58;GND</td>
-<td align="left">EPD&#58;GND, BAT-</td>
+<td align="left">BAT&#58;GND</td>
 </tr>
 <tr>
 <td align="left">ESP&#58;IO23(MOSI)</td>
@@ -214,8 +221,13 @@ convert -size 1600x1200 "xc:white" +antialias \
 <td align="left">CON&#58;TXD</td>
 </tr>
 </table>
+<p>ESP, EPD, BAT, and CON respectively represent ESP32, e-paper, battery, and the connector for programming the flash. Three AA batteries are used for power suply&#58; 4.5 V is input to the e-paper, and 3.3 V is input to ESP32 which is obtained with MCP1700T-3302E. A battery holder with a small contact resistance is used since a large current is drained. A 11x14 inch photo frame is used for enclosing the e-paper.</p>
+<div align="center">
+<figure style="display: inline-table;"><a href="front.jpg"><img height=200 src="front.jpg" border="2"><figcaption>Cased device (front)</figcaption></a></figure>
+<figure style="display: inline-table;"><a href="back.jpg"><img height=200 src="back.jpg" border="2"><figcaption>Cased device (back)</figcaption></a></figure>
+</div>
 <h2>Software</h2>
-<p>A <a href="https&#58;//github.com/middle-river/color_epd_photo3/tree/main/firmware">firmware</a> for the Arduino ESP32 was written in order to use this 13.3&quot; e-paper as a photo frame. The control of this e-paper is a bit tricky compared to previous ones. It has two controllers, and there are two chip select (CS) signals. The PWR signal was added to completely cut off the power supply with MOS-FET, so power consumption can be reduced to zero when not in use (not applicable to Raspberry Pi GPIO pins). There is a D/C signal to distinguish between commands and data, but it is not actually used. Data are sent immediately after each command, and CS must be kept low during the whole cycle. This is a large e-paper, and the current consumption is large (1.4A at maximum according to the specification). It did not work with two AA batteries due to voltage drop.</p>
+<p>A <a href="https&#58;//github.com/middle-river/color_epd_photo3/tree/main/firmware">firmware</a> for the Arduino ESP32 was written in order to use this 13.3&quot; e-paper as a photo frame.</p>
 <h3>Usage</h3>
 <p>This photo frame is normally in the deep sleep state, but it wakes up and rewrite images when the specified sleep time has elapsed or the tactile switch (connected to GPIO0) is pressed. This photo frame is controlled using only the single switch. By pressing the switch when powering on or resetting, several settings can be configured and image data can be transferred. There exist the following operating modes.</p>
 <ul>
@@ -243,7 +255,8 @@ find . -maxdepth 1 -name "*.gif" -printf '%s %f\n'
 </pre>
 <p>In the transfer mode, the device connects to an access point in the Station mode and runs an FTP server. We can connect with FTP client software and upload or delete image files. In Windows, File Explorer can be used as an FTP client. All image files need to be placed in the root directory of ESP32. I used the Arduino library SimpleFTPServer (in order to use LittleFS instead of SPIFFS, DEFAULT_STORAGE_TYPE_ESP32 in FtpServerKey.h needs to be changed from STORAGE_SPIFFS to STORAGE_LITTLEFS).</p>
 <h3>Image Data</h3>
-<p>Image data are stored in the GIF format, and a GIF decoder which was written before was used. Since this e-paper has two controllers assigned to the left and right sides of the display area and needs to transfer data separately, 1200x1600 images are divided into left and right halves and converted into 600x3200 images by vertically merging in advance. File sizes depend on the images, but they were usually around 250 to 450KB.</p>
+<p>Image data are stored in the GIF format as in the previous photo frame. Since this e-paper has two controllers assigned to the left and right sides of the display area and needs to transfer data separately, 1200x1600 images are divided into left and right halves and converted into 600x3200 images by vertically merging in advance. File sizes depend on the images, but they were usually around 250 to 450KB. About 60 images can be stored when 15 MB is assigned to LittleFS and the size of each image is 250 KB.</p>
+<p>The power voltage of ESP32 and the index number of the currently displaying image are shown  in the upper left corner of the screen.</p>
 <hr>
 <!-- var -->
 <p><a href="#lang_en">[English]</a> <a id="lang_ja" name="lang_ja"></a>[日本語]</p>
@@ -404,20 +417,27 @@ convert -size 1600x1200 "xc:white" +antialias \
 <p>13.3インチの表示例を見るとパレット毎の違いが分かります。パレットA(純色パレット)は常に彩度が低くノイジーです。パレットB(実際のパレット)はハイライトが飛びやすいです。パレットC(サンプル画像のパレット)はどの画像でも比較的画質が安定しています。パレットD(適応的パレット)はパレットCよりもややコントラストが高くなりますが色が変わってしまうことがあります。</p>
 <p>13.3インチのSpectra 6 (パレットC)と7.3インチのACePを比較すると、多くの場合Spectra 6の方がやや鮮やかな結果が得られています。</p>
 <p><a href="https&#58;//github.com/middle-river/color_epd_photo2">以前のページ</a>で説明したように、減色で使用するカラーパレットにより画質が大きな影響を受けます。パレットCは、元々ACePカラー電子ペーパーのサンプル画像から得たカラーパレットですが、Spectra 6でもよい結果が得られました。</p>
+<p>なお描画速度に関しては、ACePが32秒であるのに対してSpectra 6は22秒と短めでした。</p>
 <h2>ハードウェア</h2>
-<p>回路は前回とほとんど同じ以下のとおり配線しました。</p>
+<p>今回使用した6色の電子ペーパーは、Waveshare社の<a href="https&#58;//www.waveshare.com/13.3inch-e-paper-hat-plus-e.htm?sku=29355">13.3inch e-Paper HAT+ (E)</a>というもので解像度は1200x1600です。この電子ペーパーの制御は従来のものと比べてややクセがあります。まず、コントローラーが2つあるために、チップセレクト(CS)信号が2つあります。また電源をMOS-FETで完全に遮断するためのPWR信号が追加されていて、未使用時の消費電力をゼロにできます(Raspberry PiのGPIOピン使用時は無効)。コマンドとデータを区別するためにD/C信号がありますが、実際には使われておらず、コマンドの直後にデータを連続して送るようになっており、その間ずっとCSをLにしておく必要があります。また大型の電子ペーパーであるため消費電流も大きく、仕様書では最大1.4Aとなっています。そのため、単3電池2本では電圧降下のため動きませんでした。電源に十分に余裕がないと動作が不安定になりました。</p>
+<p>電子ペーパーの制御には、16MBのフラッシュメモリを搭載したESP32を使いました。1,280KBをプログラム領域に割り当て、残りをLittleFSに割り当てました。</p>
+<p>回路は前回と似ていて以下のとおり配線しました。</p>
 <table align="center" border="1">
 <tr>
-<td align="left">VCC</td>
+<td align="left">BAT&#58;4.5V</td>
 <td align="left">EPD&#58;VCC</td>
 </tr>
 <tr>
+<td align="left">BAT&#58;GND</td>
+<td align="left">EPD&#58;GND</td>
+</tr>
+<tr>
 <td align="left">ESP&#58;3V3</td>
-<td align="left">BAT+</td>
+<td align="left">BAT&#58;3.3V</td>
 </tr>
 <tr>
 <td align="left">ESP&#58;GND</td>
-<td align="left">EPD&#58;GND, BAT-</td>
+<td align="left">BAT&#58;GND</td>
 </tr>
 <tr>
 <td align="left">ESP&#58;IO23(MOSI)</td>
@@ -460,9 +480,13 @@ convert -size 1600x1200 "xc:white" +antialias \
 <td align="left">CON&#58;TXD</td>
 </tr>
 </table>
+<p>ESPはアダプターボードに取り付けたESP32、EPDは電子ペーパー、BATは電池、CONはファームウェア書き込み用のコネクタです。電池は単3電池3本を使い、電子ペーパーには4.5Vを供給し、ESP32にはMCP1700T-3302Eで安定化した3.3Vを供給します。流れる電流が大きいので、接触抵抗の低い電池ボックスを使用しています。ケースは11x14インチの写真立てを使用しました。</p>
+<div align="center">
+<figure style="display: inline-table;"><a href="front.jpg"><img height=200 src="front.jpg" border="2"><figcaption>ケースに入れた状態(表)</figcaption></a></figure>
+<figure style="display: inline-table;"><a href="back.jpg"><img height=200 src="back.jpg" border="2"><figcaption>ケースに入れた状態(裏)</figcaption></a></figure>
+</div>
 <h2>ソフトウェア</h2>
 <p>この13.3インチをフォトフレームとして使うためにArduinoのESP32用のファームウェアを書きました。作成したファームウェアは<a href="https&#58;//github.com/middle-river/color_epd_photo3/tree/main/firmware">こちら</a>です。</p>
-<p>この電子ペーパーの制御は従来のものと比べてややクセがあります。まず、コントローラーが2つあるために、チップセレクト(CS)信号が2つあります。また電源をMOS-FETで完全に遮断するためのPWR信号が追加されていて、未使用時の消費電力をゼロにできます(Raspberry PiのGPIOピン使用時は無効)。コマンドとデータを区別するためにD/C信号がありますが、実際には使われておらず、コマンドの直後にデータを連続して送るようになっており、その間ずっとCSをLにしておく必要があります。また大型の電子ペーパーであるため消費電流も大きく、仕様書では最大1.4Aとなっています。そのため、単3電池2本では電圧降下のため動きませんでした。</p>
 <h3>動作モード</h3>
 <p>このフォトフレームは通常はディープスリープでマイコンを停止していますが、指定したスリープ時間が経過するかタクトスイッチ(GPIO0に接続)が押されるとスリープから復帰して画像表示を行います。また電源投入時にそのスイッチを押すことにより各種設定や画像データの転送を行うことができます。具体的には、下記の動作モードがあります。</p>
 <ul>
@@ -490,7 +514,8 @@ find . -maxdepth 1 -name "*.gif" -printf '%s %f\n'
 </pre>
 <p>転送モードでは、ステーションモード(子機)でアクセスポイントに接続してFTPサーバーを動かします．適当なFTPクライアントソフトで接続して、画像ファイルのアップロードや削除を行います．WindowsであればファイルエクスプローラーをFTPクライアントとして使えます。ESP32のデータ領域のフラッシュメモリは、LittleFSをファイルシステムに使いファイルを管理しました．フォトフレームで表示させる画像ファイルは全てルートディレクトリに置きます．ArduinoのSimpleFTPServerというライブラリを使用しました(SPIFFSではなくLittleFSを使うため、FtpServerKey.hのDEFAULT_STORAGE_TYPE_ESP32をSTORAGE_SPIFFSからSTORAGE_LITTLEFSに変更します)。</p>
 <h3>画像データと表示</h3>
-<p>画像データはGIFフォーマットで格納し、以前作成したGIFデコーダーを使います。今回の電子ペーパーは表示領域の左右それぞれにコントローラーが割り当てられて別々に転送を行う必要があるため、事前に1200x1600の画像を左右に分割して縦につなげた600x3200の画像に変換しておきます。ファイルサイズは画像にもよりますが、250〜450KB程度でした。</p>
+<p>画像データは前回同様にGIFフォーマットで格納します。今回の電子ペーパーは表示領域の左右それぞれにコントローラーが割り当てられて別々に転送を行う必要があるため、事前に1200x1600の画像を左右に分割して縦につなげた600x3200の画像に変換しておきます。ファイルサイズは画像にもよりますが、250〜450KB程度でした。LittleFSに15MBを割り当てたとして画像サイズを250KBとすると、60枚程度保存することができます。</p>
+<p>ESP32の電源電圧と現在何番目の画像を表示しているかを、画面左上に表示します。</p>
 <hr>
 <p><a href="https&#58;//github.com/middle-river">[Home]</a></p>
 <div align="right">
