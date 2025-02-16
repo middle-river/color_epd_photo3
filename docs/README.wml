@@ -150,7 +150,7 @@ When comparing the 13.3" Spectra 6 (Palette C) to the 7.3" ACeP (Palette C), the
 As described in the \[previous page\:https://github.com/middle-river/color_epd_photo2\] , color palettes used for color reduction largely impact on image quality.
 Palette C was originally obtained from a sample image of ACeP e-paper, but it also gave good results on Spectra 6.
 
-ACeP took 32 seconds and Spectra 6 took 22 seconds for refreshing the screen.
+7.3 inch ACeP took 32 seconds and 13.3 inch Spectra 6 took 22 seconds for refreshing the screen.
 
 \2	Hardware
 
@@ -405,7 +405,7 @@ result3.jpg	result3.jpg	画像Dの表示結果
 \[以前のページ\:https://github.com/middle-river/color_epd_photo2\]で説明したように、減色で使用するカラーパレットにより画質が大きな影響を受けます。
 パレットCは、元々ACePカラー電子ペーパーのサンプル画像から得たカラーパレットですが、Spectra 6でもよい結果が得られました。
 
-なお描画速度に関しては、ACePが32秒であるのに対してSpectra 6は22秒と短めでした。
+なお描画速度に関しては、7.3インチACePが32秒であるのに対して13.3インチSpectra 6は22秒でした。
 
 \2	ハードウェア
 
