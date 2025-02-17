@@ -258,6 +258,12 @@ About 60 images can be stored when 15 MB is assigned to LittleFS and the size of
 
 The power voltage of ESP32 and the index number of the currently displaying image are shown  in the upper left corner of the screen.
 
+\2	Final Thoughts
+
+Compared to the ACeP e-paper, the image quality of the Spectra 6 e-paper was not different as I expected.
+The difference is recognizable when compared side by side, but the image resolution is similary limited due to dithering since each pixel can only display six colors.
+The faster refresh time is one advantage of the new e-paper.
+
 \=
 
 \!	paragraph_newline	
@@ -512,4 +518,10 @@ ArduinoのSimpleFTPServerというライブラリを使用しました(SPIFFSで
 LittleFSに15MBを割り当てたとして画像サイズを250KBとすると、60枚程度保存することができます。
 
 ESP32の電源電圧と現在何番目の画像を表示しているかを、画面左上に表示します。
+
+\2	おわりに
+
+このSpectra 6のカラー電子ペーパーは、ACePのカラー電子ペーパーと比較して、期待していたほど画質に違いはありませんでした。
+横に並べて比較すれば違いは分かりますが、液晶ディスプレイとは異なり各ピクセルで6色しか表示できないためにディザリングを使う必要があるので、画像が荒くなるという問題は変わりません。
+ただし描画速度がやや速くなるのは利点だと思います。
 

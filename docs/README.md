@@ -257,6 +257,8 @@ find . -maxdepth 1 -name "*.gif" -printf '%s %f\n'
 <h3>Image Data</h3>
 <p>Image data are stored in the GIF format as in the previous photo frame. Since this e-paper has two controllers assigned to the left and right sides of the display area and needs to transfer data separately, 1200x1600 images are divided into left and right halves and converted into 600x3200 images by vertically merging in advance. File sizes depend on the images, but they were usually around 250 to 450KB. About 60 images can be stored when 15 MB is assigned to LittleFS and the size of each image is 250 KB.</p>
 <p>The power voltage of ESP32 and the index number of the currently displaying image are shown  in the upper left corner of the screen.</p>
+<h2>Final Thoughts</h2>
+<p>Compared to the ACeP e-paper, the image quality of the Spectra 6 e-paper was not different as I expected. The difference is recognizable when compared side by side, but the image resolution is similary limited due to dithering since each pixel can only display six colors. The faster refresh time is one advantage of the new e-paper.</p>
 <hr>
 <!-- var -->
 <p><a href="#lang_en">[English]</a> <a id="lang_ja" name="lang_ja"></a>[日本語]</p>
@@ -516,6 +518,8 @@ find . -maxdepth 1 -name "*.gif" -printf '%s %f\n'
 <h3>画像データと表示</h3>
 <p>画像データは前回同様にGIFフォーマットで格納します。今回の電子ペーパーは表示領域の左右それぞれにコントローラーが割り当てられて別々に転送を行う必要があるため、事前に1200x1600の画像を左右に分割して縦につなげた600x3200の画像に変換しておきます。ファイルサイズは画像にもよりますが、250〜450KB程度でした。LittleFSに15MBを割り当てたとして画像サイズを250KBとすると、60枚程度保存することができます。</p>
 <p>ESP32の電源電圧と現在何番目の画像を表示しているかを、画面左上に表示します。</p>
+<h2>おわりに</h2>
+<p>このSpectra 6のカラー電子ペーパーは、ACePのカラー電子ペーパーと比較して、期待していたほど画質に違いはありませんでした。横に並べて比較すれば違いは分かりますが、液晶ディスプレイとは異なり各ピクセルで6色しか表示できないためにディザリングを使う必要があるので、画像が荒くなるという問題は変わりません。ただし描画速度がやや速くなるのは利点だと思います。</p>
 <hr>
 <p><a href="https&#58;//github.com/middle-river">[Home]</a></p>
 <div align="right">
