@@ -3,6 +3,7 @@
 
 //#define EPD7IN3F
 #define EPD13IN3E
+#define UPSIDE_DOWN 1
 
 #include <LittleFS.h>
 #include <Preferences.h>
@@ -143,9 +144,15 @@ void display(int delta, float voltage) {
   // Callback function for drawing each line.
   int line = 0;
   auto callback = [bitmap, &line](uint8_t *data, int size) {  // Superimpose function.
+#if UPSIDE_DOWN
+    if (EPD::HEIGHT - 1 - line < 16) {
+      for (int i = 0; i < 80 / 2; i++) data[EPD::WIDTH / 2 - 1 - i] = bitmap[80 / 2 * (EPD::HEIGHT - 1 - line) + i];
+    }
+#else
     if (line < 16) {
       std::memcpy(data, bitmap + 80 / 2 * line, 80 / 2);
     }
+#endif
     epd.write(data, size);
     line++;
   };
